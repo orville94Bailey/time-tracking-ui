@@ -1,14 +1,16 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <input v-model="username" placeholder="Name" type="text"/>
-    <input v-model="password" placeholder="password" type="password"/>
-    <button v-on:click="authenticateUser" title="Log In">Log In</button>
+    <div v-if="!this.$store.getters.userLoggedIn">
+      <input v-model="username" placeholder="Name" type="text"/>
+      <input v-model="password" placeholder="password" type="password"/>
+      <button v-on:click="authenticateUser" title="Log In">Log In</button>
     <br>
+    </div>
     <span v-if="this.$store.getters.id !== ''">Your name is {{this.$store.getters.name}}, you're a {{this.$store.getters.profession}}, and your id is {{this.$store.getters.id}}.</span>
     <br>
     <span v-if="this.$store.getters.errorState">{{this.$store.getters.errorMessage}}</span>
-    <AddTimeEvent/>
+    <AddTimeEvent v-if="this.$store.getters.userLoggedIn"/>
   </div>
 </template>
 
@@ -28,7 +30,6 @@ export default {
   methods: {
     authenticateUser : function() {
       this.$store.dispatch('authenticateUserAsync',{providedUsername:this.username,providedPassword:this.password})
-      console.log('event dispatched')
     }
   },
   components: {

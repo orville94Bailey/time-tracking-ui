@@ -20,7 +20,8 @@ const store = new Vuex.Store({
       timeEvents: [],
       apiUrl: 'http://localhost:8081',
       errorState: false,
-      errorMessage: ''
+      errorMessage: '',
+      userLoggedIn: false
    },
    getters: {
       name: state => state.user.name,
@@ -29,15 +30,21 @@ const store = new Vuex.Store({
       apiUrl: state=>state.apiUrl,
       errorState: state=>state.errorState,
       errorMessage: state=>state.errorMessage,
-      timeEvents: state=>state.timeEvents
+      timeEvents: state=>state.timeEvents,
+      userLoggedIn: state=>state.userLoggedIn
    },
    mutations: {
       addUser(state, packedObject) {
         state.user = packedObject.user
+        state.userLoggedIn = true
+      },
+
+      removeUser(state) {
+        state.user = null
+        state.userLoggedIn = false
       },
 
       loginError(state, packedObject){
-        console.log('login error')
         state.errorState = true;
         state.errorMessage = packedObject.message
       },
@@ -49,6 +56,10 @@ const store = new Vuex.Store({
 
       addTimeEvent(state, packedObject) {
         state.timeEvents.push(packedObject.timeEvent)
+      },
+
+      addTimeEvents(state, packedObject) {
+        state.timeEvent.concat(packedObject.timeEvents)
       }
    },
    actions: {
@@ -63,11 +74,11 @@ const store = new Vuex.Store({
                 store.commit({type:'addUser', user:{id:response.data._id, name:response.data.name, profession:response.data.profession}})
               } else {
                 store.commit({type:'loginError', message:response.data.message})
-                store.commit({type:'addUser', user:{id:'', name:'', profession:''}})
+                store.commit({type:'removeUser'})
               }
             })
             .catch(function(err) {
-              console.log(err)
+              console.error(err)
             })
       },
 
@@ -75,7 +86,7 @@ const store = new Vuex.Store({
         axios.get('http://localhost:8081/userEvents', {id:store.getters.id})
           .then(function (response) {
             if(response) {
-
+              store.commit({type:'addTimeEvents', timeEvents:response.body})
             } else {
               //no data?
             }
