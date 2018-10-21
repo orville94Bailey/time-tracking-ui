@@ -4,21 +4,35 @@
         <th>Time</th>
         <th>Event</th>
       </tr>
+      <tr v-for="(event, index) in timeEvents" :key="index">
+        <td>{{timeEvents[index].timeObject.time}}</td>
+        <td>{{timeEvents[index].timeObject.event}}</td>
+      </tr>
    </table>
 </template>
 
 <script>
-export default {
-   name: 'TimeEvents',
-   data () {
-      return {
-        times: []
-      }
-   },
-   methods: {
+  import {mapState} from 'vuex'
 
-   }
-}
+  export default {
+    name: 'TimeEvents',
+    data () {  
+        return {
+
+        }
+    },
+    methods: {
+
+    },
+    created() {
+      this.$store.dispatch({type:'getUsersEvents'})
+    },
+    computed: {
+      ...mapState([
+        'timeEvents'
+      ])  
+    },
+  }
 </script>
 
 <style scoped>

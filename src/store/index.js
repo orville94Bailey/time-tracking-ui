@@ -34,12 +34,12 @@ const store = new Vuex.Store({
       userLoggedIn: state=>state.userLoggedIn
    },
    mutations: {
-      addUser(state, packedObject) {
+      storeUserInfo(state, packedObject) {
         state.user = packedObject.user
         state.userLoggedIn = true
       },
 
-      removeUser(state) {
+      removeUserData(state) {
         state.user = null
         state.userLoggedIn = false
       },
@@ -59,7 +59,12 @@ const store = new Vuex.Store({
       },
 
       addTimeEvents(state, packedObject) {
-        state.timeEvent.concat(packedObject.timeEvents)
+        console.log('adding following object', packedObject)
+        state.timeEvents.concat(packedObject.timeEvents)
+      },
+
+      clearTimeEvents(state) {
+        state.timeEvent = []; 
       }
    },
    actions: {
@@ -71,10 +76,10 @@ const store = new Vuex.Store({
                 if(store.getters.errorState){
                   store.commit({type:'resetLoginError'})
                 }
-                store.commit({type:'addUser', user:{id:response.data._id, name:response.data.name, profession:response.data.profession}})
+                store.commit({type:'storeUserInfo', user:{id:response.data._id, name:response.data.name, profession:response.data.profession}})
               } else {
                 store.commit({type:'loginError', message:response.data.message})
-                store.commit({type:'removeUser'})
+                store.commit({type:'removeUserData'})
               }
             })
             .catch(function(err) {
@@ -86,7 +91,8 @@ const store = new Vuex.Store({
         axios.get('http://localhost:8081/userEvents', {id:store.getters.id})
           .then(function (response) {
             if(response) {
-              store.commit({type:'addTimeEvents', timeEvents:response.body})
+              console.log(response)
+              store.commit({type:'addTimeEvents', timeEvents:response.data})
             } else {
               //no data?
             }
@@ -101,7 +107,8 @@ const store = new Vuex.Store({
         axios.post('http://localhost:8081/timeEvent', timeObject)
           .then(function (response) {
             if(response) {
-              store.commit({type:'addTimeEvent', timeEvent:{timeObject}})
+              console.log(response)
+              store.commit({type:'addTimeEvent', timeEvent:timeObject})
             } else {
               console.log('could not post time event')
             }
@@ -109,7 +116,11 @@ const store = new Vuex.Store({
           .catch(function (err) {
             console.log(err)
           })
+      },
 
+      logoutUser({commit, state}) {
+        commit({type:'clearTimeEvents'})
+        commit({type:'removeUserData'})
       }
    },
    plugins: [vuexLocalStorage.plugin]
